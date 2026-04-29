@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Data App - Top 10 Seleções{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: '#0a0e17',      /* Deep navy background */
+                        card: '#121a2f',      /* Lighter navy for cards */
+                        primary: '#005bea',   /* FIFA Blue */
+                        accent: '#f0b323',    /* FIFA Gold */
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0a0e17;
+            color: #f8fafc;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #005bea;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+    <!-- Navbar -->
+    <nav class="bg-gradient-to-r from-[#0a0e17] to-[#001d4a] border-b border-blue-900/50 p-4 sticky top-0 z-50 shadow-2xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-2xl font-display font-black tracking-widest text-white flex items-center gap-2 uppercase">
+                <div class="bg-primary text-white w-10 h-10 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(0,91,234,0.5)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">FIFA Data</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-card border-t border-gray-800 text-center p-6 text-gray-400 mt-12">
+        <p>&copy; 2026 Data App FIFA Top 10 Seleções. Construído com Flask e Tailwind CSS.</p>
+    </footer>
+</body>
+</html>

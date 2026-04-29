@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Duelo: {{ p1.name }} vs {{ p2.name }}{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <a href="/player/{{ p1.id }}" class="text-primary hover:text-white flex items-center gap-2 transition-colors font-bold uppercase tracking-wider text-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Voltar para {{ p1.name }}
+    </a>
+    <h1 class="text-2xl md:text-4xl font-display font-black text-white tracking-widest uppercase">
+        <span class="text-primary">{{ p1.name }}</span> 
+        <span class="text-accent mx-2">VS</span> 
+        <span class="text-green-500">{{ p2.name }}</span>
+    </h1>
+    <div class="w-[100px]"></div> <!-- Espaçador para centralizar o título -->
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Jogador 1 (Reduzido) -->
+    <div class="lg:col-span-3 flex flex-col gap-6 order-2 lg:order-1">
+        <div class="bg-card overflow-hidden border-b-4 border-primary shadow-[0_0_20px_rgba(0,91,234,0.1)] relative">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/80 to-transparent z-10"></div>
+            <img src="{{ p1.photo_url }}" alt="{{ p1.name }}" class="w-full aspect-square md:aspect-[3/4] object-cover object-top filter brightness-110 grayscale-[10%]">
+            <div class="absolute bottom-4 left-4 right-4 z-20">
+                <h2 class="text-2xl font-display font-black text-white mb-1 leading-tight uppercase tracking-wide">{{ p1.name }}</h2>
+                <p class="text-primary font-bold text-sm uppercase tracking-wider">{{ p1.country }} &bull; {{ p1.position }}</p>
+                <div class="flex flex-wrap gap-1 mt-2">
+                    <span class="text-[10px] font-bold bg-dark px-2 py-1 uppercase tracking-widest text-white border border-gray-800">{{ p1.age }} anos</span>
+                    <span class="text-[10px] font-bold bg-dark px-2 py-1 uppercase tracking-widest text-white border border-gray-800 truncate max-w-full">{{ p1.club }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Centro: Gráficos e Comparações (Expandido) -->
+    <div class="lg:col-span-6 flex flex-col gap-6 order-1 lg:order-2">
+        <!-- Radar Chart -->
+        <div class="flex flex-col items-center justify-center bg-card p-6 border-t-4 border-accent shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 to-transparent pointer-events-none"></div>
+            <h2 class="text-xl font-display font-black text-white mb-6 z-10 uppercase tracking-widest">Comparação</h2>
+            <div class="w-full aspect-square max-w-[400px] relative z-10">
+                <canvas id="duelRadarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Estatísticas Gerais e Clube -->
+        <div class="bg-card p-6 border-l-4 border-gray-800 shadow-xl">
+            <h3 class="text-sm font-black text-gray-500 mb-6 uppercase tracking-widest text-center">Desempenho Geral</h3>
+            
+            <div class="space-y-5">
+                <!-- Gols no Clube -->
+                <div class="flex justify-between items-center bg-dark p-3 border border-gray-800">
+                    <span class="text-2xl font-black w-16 text-center {{ 'text-primary' if p1.club_performance.goals > p2.club_performance.goals else 'text-white' if p1.club_performance.goals == p2.club_performance.goals else 'text-gray-700' }}">{{ p1.club_performance.goals }}</span>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest text-center flex-1">Gols no Clube</span>
+                    <span class="text-2xl font-black w-16 text-center {{ 'text-green-500' if p2.club_performance.goals > p1.club_performance.goals else 'text-white' if p1.club_performance.goals == p2.club_performance.goals else 'text-gray-700' }}">{{ p2.club_performance.goals }}</span>
+                </div>
+                
+                <!-- Assistências no Clube -->
+                <div class="flex justify-between items-center bg-dark p-3 border border-gray-800">
+                    <span class="text-2xl font-black w-16 text-center {{ 'text-primary' if p1.club_performance.assists > p2.club_performance.assists else 'text-white' if p1.club_performance.assists == p2.club_performance.assists else 'text-gray-700' }}">{{ p1.club_performance.assists }}</span>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest text-center flex-1">Ast. no Clube</span>
+                    <span class="text-2xl font-black w-16 text-center {{ 'text-green-500' if p2.club_performance.assists > p1.club_performance.assists else 'text-white' if p1.club_performance.assists == p2.club_performance.assists else 'text-gray-700' }}">{{ p2.club_performance.assists }}</span>
+                </div>
+                
+                <!-- Jogos Seleção -->
+                <div class="flex justify-between items-center bg-dark p-3 border border-gray-800">
+                    <span class="text-2xl font-black w-16 text-center {{ 'text-primary' if p1.caps_since_2018 > p2.caps_since_2018 else 'text-white' if p1.caps_since_2018 == p2.caps_since_2018 else 'text-gray-700' }}">{{ p1.caps_since_2018 }}</span>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center flex-1">Jogos Seleção (Desde 2018)</span>
+                    <span class="text-2xl font-black w-16 text-center {{ 'text-green-500' if p2.caps_since_2018 > p1.caps_since_2018 else 'text-white' if p1.caps_since_2018 == p2.caps_since_2018 else 'text-gray-700' }}">{{ p2.caps_since_2018 }}</span>
+                </div>
+
+                <!-- Divisor -->
+                <div class="h-px bg-gray-800 my-4"></div>
+
+                <!-- Atributos Individuais -->
+                {% for key, val1 in p1.attributes.items() %}
+                    {% set val2 = p2.attributes[key] %}
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-xl font-black w-16 text-center {{ 'text-primary' if val1 > val2 else 'text-white' if val1 == val2 else 'text-gray-700' }}">{{ val1 }}</span>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest text-center flex-1">{{ key }}</span>
+                        <span class="text-xl font-black w-16 text-center {{ 'text-green-500' if val2 > val1 else 'text-white' if val1 == val2 else 'text-gray-700' }}">{{ val2 }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Jogador 2 (Reduzido) -->
+    <div class="lg:col-span-3 flex flex-col gap-6 order-3">
+        <div class="bg-card overflow-hidden border-b-4 border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.1)] relative">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/80 to-transparent z-10"></div>
+            <img src="{{ p2.photo_url }}" alt="{{ p2.name }}" class="w-full aspect-square md:aspect-[3/4] object-cover object-top filter brightness-110 grayscale-[10%]">
+            <div class="absolute bottom-4 left-4 right-4 z-20 text-right">
+                <h2 class="text-2xl font-display font-black text-white mb-1 leading-tight uppercase tracking-wide">{{ p2.name }}</h2>
+                <p class="text-green-500 font-bold text-sm uppercase tracking-wider">{{ p2.country }} &bull; {{ p2.position }}</p>
+                <div class="flex flex-wrap gap-1 mt-2 justify-end">
+                    <span class="text-[10px] font-bold bg-dark px-2 py-1 uppercase tracking-widest text-white border border-gray-800">{{ p2.age }} anos</span>
+                    <span class="text-[10px] font-bold bg-dark px-2 py-1 uppercase tracking-widest text-white border border-gray-800 truncate max-w-full">{{ p2.club }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('duelRadarChart').getContext('2d');
+        
+        const attrs1 = {{ p1.attributes | tojson }};
+        const attrs2 = {{ p2.attributes | tojson }};
+        
+        const labels = Object.keys(attrs1);
+        const data1 = Object.values(attrs1);
+        const data2 = Object.values(attrs2);
+
+        const colorP1 = 'rgba(96, 165, 250, 1)'; // blue-400
+        const bgP1 = 'rgba(96, 165, 250, 0.3)';
+        
+        const colorP2 = 'rgba(74, 222, 128, 1)'; // green-400
+        const bgP2 = 'rgba(74, 222, 128, 0.3)';
+
+        const gridColor = 'rgba(51, 65, 85, 0.5)';
+        const textColor = 'rgba(148, 163, 184, 1)';
+
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '{{ p1.name }}',
+                        data: data1,
+                        backgroundColor: bgP1,
+                        borderColor: colorP1,
+                        pointBackgroundColor: colorP1,
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: colorP1,
+                        borderWidth: 2,
+                    },
+                    {
+                        label: '{{ p2.name }}',
+                        data: data2,
+                        backgroundColor: bgP2,
+                        borderColor: colorP2,
+                        pointBackgroundColor: colorP2,
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: colorP2,
+                        borderWidth: 2,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        angleLines: { color: gridColor },
+                        grid: { color: gridColor },
+                        pointLabels: {
+                            color: textColor,
+                            font: { family: "'Inter', sans-serif", size: 12, weight: '600' }
+                        },
+                        ticks: {
+                            display: false,
+                            min: 0,
+                            max: 100,
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#fff',
+                            font: { family: "'Inter', sans-serif", size: 14, weight: 'bold' },
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { family: "'Space Grotesk', sans-serif", size: 14 },
+                        bodyFont: { family: "'Inter', sans-serif", size: 14, weight: 'bold' },
+                        padding: 12,
+                        cornerRadius: 8,
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
